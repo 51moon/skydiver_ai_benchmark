@@ -19,7 +19,7 @@ automatically against the reference values using the criteria in
 
 ## [Results Website](https://51moon.github.io/skydiver_ai_benchmark/)
 
-[![Results Website](screenshot.jpg)](https://51moon.github.io/skydiver_ai_benchmark/)
+[![Results Website](docs/screenshot.jpg)](https://51moon.github.io/skydiver_ai_benchmark/)
 
 ## Prerequisites
 
