@@ -1,0 +1,11 @@
+{
+  "agent_name": "Nemotron 3 Ultra (free) / OpenCode",
+  "results": {
+    "v_infty_ms": 54.0,
+    "t95_analytic_s": 10.08319719118251,
+    "t95_numeric_s": 10.08319719118254,
+    "s95_analytic_m": 345.9818990444864,
+    "s95_numeric_m": 345.9818990444878,
+    "max_v_deviation_ms": 4.263256414560601e-14
+  }
+}

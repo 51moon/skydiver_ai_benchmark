@@ -1,0 +1,11 @@
+{
+  "agent_name": "OpenCode",
+  "results": {
+    "v_infty_ms": 54.0,
+    "t95_analytic_s": 10.083197,
+    "t95_numeric_s": 10.083197,
+    "s95_analytic_m": 345.981899,
+    "s95_numeric_m": 345.981899,
+    "max_v_deviation_ms": 0.0
+  }
+}
