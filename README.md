@@ -1,7 +1,5 @@
 # Skydiver Benchmark – AI Model Comparison via OpenRouter + OpenCode
 
-![screenshot.jpg](screenshot.jpg)
-
 ## Goal & Approach
 
 **Goal:** Benchmark how well different AI models solve a physics problem end-to-end, both
@@ -18,6 +16,10 @@ CLI (OpenRouter provider) in an isolated run directory. Each agent produces a
 automatically against the reference values using the criteria in
 [evaluation.md](evaluation.md) (max. 20 points). Finally, a results website
 (`docs/index.html`) is generated comparing all models.
+
+## [Results Website](https://51moon.github.io/skydiver_ai_benchmark/)
+
+[![Results Website](screenshot.jpg)](https://51moon.github.io/skydiver_ai_benchmark/)
 
 ## Prerequisites
 
@@ -57,7 +59,3 @@ python3 run_benchmark.py --build-only
    - (a) derivation, heuristic from `solution.md` (tanh formula 4 pts, limit behavior 2 pts)
    - plots present (2 pts) — **max. 20 points**
 7. `docs/index.html` + `docs/summary.json` + `docs/assets/` are generated (plots embedded).
-
-## View the results
-
-[docs/index.html](docs/index.html)
