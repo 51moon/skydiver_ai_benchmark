@@ -1,0 +1,71 @@
+{
+  "generated": "2026-11-08T12:59:32",
+  "ref_t95_s": 10.083,
+  "ref_s95_m": 345.982,
+  "runs": [
+    {
+      "model": "openrouter-cohere-north-mini-code-free",
+      "points": {
+        "a_derivation": 6,
+        "b_t95": 3,
+        "c_s95": 3,
+        "num_t95": 2,
+        "num_s95": 2,
+        "num_maxdev": 2,
+        "plots": 2,
+        "total": 20
+      },
+      "metrics": {
+        "t95_analytic_s": 10.083197,
+        "t95_numeric_s": 10.083197,
+        "s95_analytic_m": 345.981899,
+        "s95_numeric_m": 345.981899,
+        "max_v_deviation_ms": 0.0,
+        "dev_t95_vs_ref_s": 0.00019700000000000273,
+        "dev_s95_vs_ref_m": 0.00010100000002921661
+      },
+      "tokens": {
+        "input": 141603,
+        "output": 7690,
+        "reasoning": 13190,
+        "cache_read": 0,
+        "cache_write": 0
+      },
+      "tokens_total": 162483,
+      "cost_usd": 0.0,
+      "elapsed_s": 123.3
+    },
+    {
+      "model": "openrouter-nvidia-nemotron-3-ultra-550b-a55b-free",
+      "points": {
+        "a_derivation": 6,
+        "b_t95": 3,
+        "c_s95": 3,
+        "num_t95": 2,
+        "num_s95": 2,
+        "num_maxdev": 2,
+        "plots": 2,
+        "total": 20
+      },
+      "metrics": {
+        "t95_analytic_s": 10.08319719118251,
+        "t95_numeric_s": 10.08319719118254,
+        "s95_analytic_m": 345.9818990444864,
+        "s95_numeric_m": 345.9818990444878,
+        "max_v_deviation_ms": 4.263256414560601e-14,
+        "dev_t95_vs_ref_s": 0.00019719118250982604,
+        "dev_s95_vs_ref_m": 0.0001009555136306517
+      },
+      "tokens": {
+        "input": 49890,
+        "output": 4499,
+        "reasoning": 3364,
+        "cache_read": 61376,
+        "cache_write": 0
+      },
+      "tokens_total": 57753,
+      "cost_usd": 0.0,
+      "elapsed_s": 89.5
+    }
+  ]
+}

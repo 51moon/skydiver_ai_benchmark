@@ -1,7 +1,5 @@
 # Skydiver Benchmark – AI Model Comparison via OpenRouter + OpenCode
 
-![screenshot.jpg](screenshot.jpg)
-
 ## Goal & Approach
 
 **Goal:** Benchmark how well different AI models solve a physics problem end-to-end, both
@@ -17,7 +15,11 @@ CLI (OpenRouter provider) in an isolated run directory. Each agent produces a
 `solution/` folder (derivation, simulation, plots, `results.json`), which is then scored
 automatically against the reference values using the criteria in
 [evaluation.md](evaluation.md) (max. 20 points). Finally, a results website
-(`website/index.html`) is generated comparing all models.
+(`docs/index.html`) is generated comparing all models.
+
+## [Results Website](https://51moon.github.io/skydiver_ai_benchmark/)
+
+[![Results Website](docs/screenshot.jpg)](https://51moon.github.io/skydiver_ai_benchmark/)
 
 ## Prerequisites
 
@@ -31,10 +33,10 @@ automatically against the reference values using the criteria in
 
 ```bash
 # Default: two models (see DEFAULT_MODELS in the script)
-python3 run_benchmark.py
+python run_benchmark.py
 
 # Rebuild only the website from existing runs/ (no new agent runs)
-python3 run_benchmark.py --build-only
+python run_benchmark.py --build-only
 ```
 
 ## Workflow per model
@@ -56,8 +58,4 @@ python3 run_benchmark.py --build-only
    - Numerics ↔ analytics: |Δt95| < 0.05 s (2), |Δs95| < 1 m (2), max_v_deviation_ms < 0.05 (2)
    - (a) derivation, heuristic from `solution.md` (tanh formula 4 pts, limit behavior 2 pts)
    - plots present (2 pts) — **max. 20 points**
-7. `website/index.html` + `website/summary.json` + `website/assets/` are generated (plots embedded).
-
-## View the results
-
-[website/index.html](website/index.html)
+7. `docs/index.html` + `docs/summary.json` + `docs/assets/` are generated (plots embedded).
