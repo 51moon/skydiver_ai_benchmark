@@ -5,7 +5,7 @@ run_benchmark.py — "Skydiver" AI-agent benchmark comparing two models via Open
   1. Reads task.md and evaluation.md (reference values + tolerances).
   2. Runs one `opencode run` agent per model in runs/<model>/.
   3. Scores each results.json against evaluation.md (max 20 points).
-  4. Builds a self-contained HTML report at website/index.html.
+  4. Builds a self-contained HTML report at docs/index.html.
 
 Usage:
   python3 run_benchmark.py              # run default models
@@ -18,7 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 TASK_FILE, EVAL_FILE = ROOT / "task.md", ROOT / "evaluation.md"
-RUNS_DIR, WEB_DIR = ROOT / "runs", ROOT / "website"
+RUNS_DIR, WEB_DIR = ROOT / "runs", ROOT / "docs"
 
 DEFAULT_MODELS = [
     "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -357,7 +357,7 @@ def main():
                          "tokens_total": r["tokens_total"], "cost_usd": r["cost_usd"],
                          "elapsed_s": r["elapsed_s"]} for r in runs]}
     (WEB_DIR / "summary.json").write_text(json.dumps(summary, indent=2))
-    print("Done. Summary: website/summary.json")
+    print("Done. Summary: docs/summary.json")
 
 
 if __name__ == "__main__":
