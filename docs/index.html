@@ -1,24 +1,181 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
-<title>Skydiver Benchmark — Model Comparison</title><style> body{font-family:system-ui,sans-serif;margin:2rem;background:#0f1420;color:#e8eaf2}
-h1{color:#7cc7ff} table{border-collapse:collapse;margin:1rem 0}
-th,td{border:1px solid #33405c;padding:.35rem .7rem;text-align:left} th{background:#1b2438}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skydiver Benchmark — Model Comparison</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<style>:root{--bg:#0f1420;--panel:#161e30;--panel2:#1b2438;--border:#2a3652;--border2:#33405c;--txt:#e8eaf2;--muted:#9aa7c7;--accent:#7cc7ff;--accent2:#3fa9f5;--codebg:#0c1220}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:radial-gradient(1100px 480px at 50% -180px,#17223c 0,var(--bg) 62%);color:var(--txt);line-height:1.55}
+main{max-width:1080px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+h1{color:var(--accent);margin:.2rem 0 .3rem;font-size:1.9rem}
+.lead{color:var(--muted);margin-top:0}
+h2{color:#cfe3ff;border-bottom:1px solid var(--border);padding-bottom:.3rem;margin:2.4rem 0 1rem}
+a{color:var(--accent)}
+.tblwrap{overflow-x:auto;max-width:100%;border-radius:8px}
+table{border-collapse:collapse;margin:1rem 0;min-width:480px}
+th,td{border:1px solid var(--border);padding:.4rem .7rem;text-align:left}
+th{background:var(--panel2);color:#cfe3ff}
 .cmp td:first-child{font-weight:600}
-.card{background:#161e30;border:1px solid #2a3652;border-radius:10px;padding:1rem 1.5rem;margin:1.5rem 0}
-.bar{position:relative;background:#0c1220;border-radius:6px;height:1.6rem;margin:.5rem 0 1rem}
-.fill{background:linear-gradient(90deg,#3fa9f5,#7cc7ff);height:100%;border-radius:6px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.5rem;margin:1.5rem 0;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.card>h2{margin-top:0;border-bottom:none;padding-bottom:0}
+.bar{position:relative;background:var(--codebg);border-radius:6px;height:1.6rem;margin:.5rem 0 1rem}
+.fill{background:linear-gradient(90deg,var(--accent2),var(--accent));height:100%;border-radius:6px}
 .barlabel{position:absolute;inset:0;text-align:center;line-height:1.6rem;font-weight:700}
-.plots{display:flex;gap:1rem;flex-wrap:wrap}
-.plot img{max-width:480px;border:1px solid #33405c;border-radius:6px;background:#fff}
-.meta{color:#9aa7c7;font-size:.85rem}
-pre{background:#0c1220;padding:.8rem;border-radius:6px;overflow:auto;max-height:300px}
-code{color:#7cc7ff}</style></head><body>
+.plots{display:flex;gap:1rem;flex-wrap:wrap;margin:.8rem 0}
+.plot img{max-width:480px;width:100%;border:1px solid var(--border2);border-radius:8px;background:#fff;display:block}
+.plot h4{margin:.3rem 0;color:var(--muted);font-weight:600}
+.meta{color:var(--muted);font-size:.85rem}
+details{background:var(--codebg);border:1px solid var(--border);border-radius:8px;margin:.6rem 0;padding:.45rem .8rem}
+summary{cursor:pointer;color:var(--accent);font-weight:600}
+pre{background:var(--codebg);padding:.8rem;border-radius:6px;overflow:auto;max-height:320px}
+code{color:var(--accent);background:rgba(124,199,255,.08);padding:.05rem .3rem;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.btn{background:#1d2a45;border:1px solid var(--border2);color:var(--accent);padding:.45rem .95rem;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600}
+.btn:hover{background:#25365c;border-color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:1.2rem}
+.modal[hidden]{display:none}
+.modal-backdrop{position:absolute;inset:0;background:rgba(4,8,16,.74);backdrop-filter:blur(3px)}
+.modal-dialog{position:relative;width:min(980px,100%);height:min(86vh,920px);background:var(--panel);border:1px solid var(--border2);border-radius:14px;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 1rem;border-bottom:1px solid var(--border)}
+.modal-title{font-weight:700;color:var(--accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.modal-actions{display:flex;gap:.45rem;align-items:center;flex-shrink:0}
+.seg.active{background:linear-gradient(90deg,var(--accent2),var(--accent));color:#06121f;border-color:transparent}
+.modal-body{overflow:auto;padding:1.3rem 1.7rem;flex:1}
+.md-raw{max-height:none;white-space:pre-wrap;word-break:break-word;margin:0}
+.md-view{max-width:840px;margin:0 auto}
+.md-view h1{font-size:1.45rem;border-bottom:1px solid var(--border);padding-bottom:.3rem}
+.md-view h2{font-size:1.22rem;margin:1.7rem 0 .5rem;border-bottom:1px solid var(--border);padding-bottom:.2rem}
+.md-view h3{font-size:1.05rem;margin:1.3rem 0 .4rem;color:#cfe3ff}
+.md-view p{margin:.65rem 0}
+.md-view ul,.md-view ol{padding-left:1.5rem;margin:.6rem 0}
+.md-view li{margin:.25rem 0}
+.md-view table{min-width:0;margin:.8rem 0}
+.md-view th,.md-view td{border:1px solid var(--border2)}
+.md-view blockquote{border-left:3px solid var(--accent2);margin:.9rem 0;padding:.15rem 1rem;color:var(--muted);background:rgba(63,169,245,.05);border-radius:0 6px 6px 0}
+.md-view hr{border:none;border-top:1px solid var(--border);margin:1.3rem 0}
+.md-view img{max-width:100%;border-radius:6px}
+.md-view pre{max-height:440px}
+.md-view .katex{font-size:1.06em}
+.katex-display{overflow-x:auto;overflow-y:hidden;padding:.35rem 0}
+@media (max-width:640px){.modal{padding:.4rem}.modal-body{padding:1rem}}</style>
+<script defer src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js" integrity="sha384-/TQbtLCAerC3jgaim+N78RZSDYV7ryeoBCVqTuzRrFec2akfBkHS7ACQ3PQhvMVi" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+</head><body>
+<main>
 <h1>🪂 Skydiver Benchmark — Model Comparison</h1>
-<p>References: t95,ref = 10.083 s · s95,ref = 345.982 m · generated 2026-11-08 02:59:44</p>
-<h2>Comparison</h2><table class="cmp"><tr><th>Criterion</th><th>openrouter/nvidia/nemotron-3-ultra-550b-a55b:free</th><th>openrouter/cohere/north-mini-code:free</th></tr><tr><td>(a) Derivation (6)</td><td>6</td><td>6</td></tr><tr><td>(b) t95 (3)</td><td>3</td><td>3</td></tr><tr><td>(c) s95 (3)</td><td>3</td><td>3</td></tr><tr><td>num↔ana t95 (2)</td><td>2</td><td>2</td></tr><tr><td>num↔ana s95 (2)</td><td>2</td><td>2</td></tr><tr><td>max_v_dev (2)</td><td>2</td><td>2</td></tr><tr><td>Plots (2)</td><td>2</td><td>2</td></tr><tr><td>TOTAL (20)</td><td>20</td><td>20</td></tr><tr><td>Tokens (total)</td><td>57,753</td><td>162,483</td></tr><tr><td>Time [s]</td><td>91.4</td><td>124.6</td></tr><tr><td>Cost [USD]</td><td>$0.0000</td><td>$0.0000</td></tr></table><h2>Details per model</h2><div class="card"><h2>openrouter/nvidia/nemotron-3-ultra-550b-a55b:free</h2>
+<p class="lead">References: t95,ref = 10.083 s · s95,ref = 345.982 m · generated 2026-11-08 12:43:51</p>
+<h2>Comparison</h2><div class="tblwrap"><table class="cmp"><tr><th>Criterion</th><th>openrouter-cohere-north-mini-code-free</th><th>openrouter-nvidia-nemotron-3-ultra-550b-a55b-free</th></tr><tr><td>(a) Derivation (6)</td><td>6</td><td>6</td></tr><tr><td>(b) t95 (3)</td><td>3</td><td>3</td></tr><tr><td>(c) s95 (3)</td><td>3</td><td>3</td></tr><tr><td>num↔ana t95 (2)</td><td>2</td><td>2</td></tr><tr><td>num↔ana s95 (2)</td><td>2</td><td>2</td></tr><tr><td>max_v_dev (2)</td><td>2</td><td>2</td></tr><tr><td>Plots (2)</td><td>2</td><td>2</td></tr><tr><td>TOTAL (20)</td><td>20</td><td>20</td></tr><tr><td>Tokens (total)</td><td>162,483</td><td>57,753</td></tr><tr><td>Time [s]</td><td>123.3</td><td>89.5</td></tr><tr><td>Cost [USD]</td><td>$0.0000</td><td>$0.0000</td></tr></table></div><h2>Details per model</h2><div class="card"><h2>openrouter-cohere-north-mini-code-free</h2>
 <div class="bar"><div class="fill" style="width:100.0%"></div><span class="barlabel">20 / 20 points</span></div>
-<table class="metrics"><tr><th>Metric</th><th>Value</th><th>Reference</th><th>Deviation</th></tr><tr><td>t95 analytic [s]</td><td>10.083197</td><td>10.083</td><td>1.97e-04</td></tr><tr><td>t95 numeric [s]</td><td>10.083197</td><td>—</td><td>num↔ana: 3.02e-14</td></tr><tr><td>s95 analytic [m]</td><td>345.9819</td><td>345.982</td><td>1.01e-04</td></tr><tr><td>s95 numeric [m]</td><td>345.9819</td><td>—</td><td>num↔ana: 1.42e-12</td></tr><tr><td>max_v_deviation [m/s]</td><td>4.26e-14</td><td>&lt;0.05</td><td>OK</td></tr></table>
-<table class="points"><tr><th>(a) Derivation (6)</th><th>(b) t95 (3)</th><th>(c) s95 (3)</th><th>num↔ana t95 (2)</th><th>num↔ana s95 (2)</th><th>max_v_dev (2)</th><th>Plots (2)</th><th>TOTAL (20)</th></tr><tr><td>6</td><td>3</td><td>3</td><td>2</td><td>2</td><td>2</td><td>2</td><td>20</td></tr></table>
-<p class="meta">⏱ 91.4s · 🪙 57,753 total (in 49,890 / out 4,499 / reason 3,364 / cache 61,376+0) · 💰 $0.0000 ·
+<div class="tblwrap"><table class="metrics"><tr><th>Metric</th><th>Value</th><th>Reference</th><th>Deviation</th></tr><tr><td>t95 analytic [s]</td><td>10.083197</td><td>10.083</td><td>1.97e-04</td></tr><tr><td>t95 numeric [s]</td><td>10.083197</td><td>—</td><td>num↔ana: 0.000000</td></tr><tr><td>s95 analytic [m]</td><td>345.9819</td><td>345.982</td><td>1.01e-04</td></tr><tr><td>s95 numeric [m]</td><td>345.9819</td><td>—</td><td>num↔ana: 0.000000</td></tr><tr><td>max_v_deviation [m/s]</td><td>0.0000000000</td><td>&lt;0.05</td><td>OK</td></tr></table></div>
+<div class="tblwrap"><table class="points"><tr><th>(a) Derivation (6)</th><th>(b) t95 (3)</th><th>(c) s95 (3)</th><th>num↔ana t95 (2)</th><th>num↔ana s95 (2)</th><th>max_v_dev (2)</th><th>Plots (2)</th><th>TOTAL (20)</th></tr><tr><td>6</td><td>3</td><td>3</td><td>2</td><td>2</td><td>2</td><td>2</td><td>20</td></tr></table></div>
+<p class="meta">⏱ 123.3s · 🪙 162,483 total (in 141,603 / out 7,690 / reason 13,190 / cache 0+0) · 💰 $0.0000 ·
+Exit 0 · Log: <code>runs/openrouter-cohere-north-mini-code-free/opencode_output.jsonl</code> · Plots: position.jpg, velocity.jpg</p>
+<div class="plots"><div class="plot"><h4>velocity.jpg</h4><img src="assets/openrouter-cohere-north-mini-code-free_velocity.jpg"></div><div class="plot"><h4>position.jpg</h4><img src="assets/openrouter-cohere-north-mini-code-free_position.jpg"></div></div>
+<details><summary>results.json</summary><pre>{
+  &quot;v_infty_ms&quot;: 54.0,
+  &quot;t95_analytic_s&quot;: 10.083197,
+  &quot;t95_numeric_s&quot;: 10.083197,
+  &quot;s95_analytic_m&quot;: 345.981899,
+  &quot;s95_numeric_m&quot;: 345.981899,
+  &quot;max_v_deviation_ms&quot;: 0.0
+}</pre></details><p style="margin:.8rem 0"><button type="button" class="btn md-open" data-src="mdsrc-openrouter-cohere-north-mini-code-free" data-title="solution.md — openrouter-cohere-north-mini-code-free">📄 View solution.md (rendered)</button></p><div id="mdsrc-openrouter-cohere-north-mini-code-free" hidden># Analytical solution for the skydiver problem
+
+## (a) Determination of $v(t)$ and terminal velocity
+
+The motion in the $z$-direction (upward positive) is governed by the force balance:
+
+$$F_z = m\,a_z = m\frac{dv}{dt} = -mg + \alpha v^2.$$
+
+Dividing by $m$ and introducing the constant $C\equiv \alpha/m$ we have the ordinary differential equation
+
+$$\frac{dv}{dt} = -g + C v^2 \qquad (v&lt;0 \text{ while falling}).$$
+
+A terminal velocity $v_\infty$ is reached when the acceleration vanishes, i.e. $dv/dt\to0$. Setting the right‑hand side to zero gives
+
+$$-g + C v_\infty^2 = 0 \;\Longrightarrow\; v_\infty = -\sqrt{\frac{g}{C}} = -\sqrt{\frac{gm}{\alpha}}.$$
+
+(The negative sign follows from the definition that the skydiver falls, $v&lt;0$.)
+
+Thus the magnitude of the terminal speed is $|v_\infty|=\sqrt{gm/\alpha}$.
+
+### Solving the ODE
+
+The equation can be separated:
+
+$$\frac{dv}{v^2 - v_\infty^2}= C\,dt.$$
+
+Integrating from $v(0)=0$ to an arbitrary $v(t)$ gives
+
+$$\frac{1}{2v_\infty}\ln\!\Bigl|\frac{v-v_\infty}{v+v_\infty}\Bigr| = C t.$$
+
+Solving for $v$ yields
+
+$$\frac{v-v_\infty}{v+v_\infty}=e^{2C v_\infty t}.$$
+
+With $v_\infty&lt;0$ and $C&gt;0$ the right‑hand side decays from $1$ to $0$ as $t$ grows. Solving for $v$ gives the closed‑form solution
+
+$$\boxed{v(t)=v_\infty\frac{1-e^{2C v_\infty t}}{1+e^{2C v_\infty t}} = -|v_\infty|\tanh\!\Bigl(\frac{g}{|v_\infty|}t\Bigr)}.$$
+
+Here we used the identities $C v_\infty = -g/|v_\infty|$ and $\tanh x = (1-e^{-2x})/(1+e^{-2x})$.
+
+The expression shows that as $t\to\infty$, $\tanh(\cdot)\to1$ and $v(t)\to -|v_\infty| = v_\infty$. Hence the skydiver approaches a constant speed $v_\infty$ – the terminal velocity.
+
+## (b) Time to reach $95\%$ of the terminal speed
+
+We are told $|v_\infty|=54\,\mathrm{m/s}$. The $95\%$ level is $|v|=0.95\,|v_\infty|=51.3\,\mathrm{m/s}$.
+
+From the analytical solution,
+
+$$\tanh\!\Bigl(\frac{g}{|v_\infty|}t_{95}\Bigr)=0.95.$$
+
+Thus
+
+$$\frac{g}{|v_\infty|}t_{95}=\operatorname{arctanh}(0.95)=\frac12\ln\!\frac{1+0.95}{1-0.95}\approx1.831781.$$
+
+Hence
+
+$$\boxed{t_{95}= \frac{|v_\infty|}{g}\,\operatorname{arctanh}(0.95)\approx\frac{54}{9.81}\times1.831781\approx10.08\ \mathrm{s}}.$$
+
+## (c) Distance fallen $s_{95}$ in that time
+
+The distance fallen is $s(t)=z_0-z(t)=\displaystyle\int_0^{t}|v(t&#x27;)|\,dt&#x27;$.
+
+Using $v(t)=-|v_\infty|\tanh(\kappa t)$ with $\kappa=g/|v_\infty|$, we obtain
+
+$$s(t)=|v_\infty|\int_0^{t}\tanh(\kappa t&#x27;)dt&#x27;
+      =\frac{|v_\infty|}{\kappa}\ln\!\bigl(\cosh(\kappa t)\bigr)
+      =\frac{|v_\infty|^2}{g}\,\ln\!\bigl(\cosh(\kappa t)\bigr).$$
+
+Therefore
+
+$$\boxed{s(t)=\frac{54^2}{9.81}\,\ln\!\bigl(\cosh(0.18166667\,t)\bigr)\approx 297.247\ln\!\bigl(\cosh(0.18166667\,t)\bigr)\ \text{m}}.$$
+
+Evaluating at $t_{95}$:
+
+$$\kappa t_{95}=\operatorname{arctanh}(0.95)\approx1.831781,$$
+
+so $\cosh(\kappa t_{95})=1/\sqrt{1-0.95^2}=1/\sqrt{0.0975}\approx3.2026$ and $\ln\cosh(\kappa t_{95})\approx1.166$. Hence
+
+$$\boxed{s_{95}=s(t_{95})\approx\frac{2916}{9.81}\times1.166\approx346.6\ \mathrm{m}}.$$
+
+## Summary of analytical results
+
+| Quantity | Symbol | Value |
+|----------|--------|-------|
+| Terminal speed magnitude | $|v_\infty|$ | $54\,\mathrm{m/s}$ |
+| Time to $95\%$ of terminal speed | $t_{95}$ | $10.08\,\mathrm{s}$ |
+| Distance fallen up to $t_{95}$ | $s_{95}$ | $346.6\,\mathrm{m}$ |
+
+The analytical solution also provides the general expressions for $v(t)$ and $s(t)$ given above.
+
+---
+
+*Note: All derivations respect the initial condition $v(0)=0$ and the sign conventions described in the problem.*</div></div><div class="card"><h2>openrouter-nvidia-nemotron-3-ultra-550b-a55b-free</h2>
+<div class="bar"><div class="fill" style="width:100.0%"></div><span class="barlabel">20 / 20 points</span></div>
+<div class="tblwrap"><table class="metrics"><tr><th>Metric</th><th>Value</th><th>Reference</th><th>Deviation</th></tr><tr><td>t95 analytic [s]</td><td>10.083197</td><td>10.083</td><td>1.97e-04</td></tr><tr><td>t95 numeric [s]</td><td>10.083197</td><td>—</td><td>num↔ana: 3.02e-14</td></tr><tr><td>s95 analytic [m]</td><td>345.9819</td><td>345.982</td><td>1.01e-04</td></tr><tr><td>s95 numeric [m]</td><td>345.9819</td><td>—</td><td>num↔ana: 1.42e-12</td></tr><tr><td>max_v_deviation [m/s]</td><td>4.26e-14</td><td>&lt;0.05</td><td>OK</td></tr></table></div>
+<div class="tblwrap"><table class="points"><tr><th>(a) Derivation (6)</th><th>(b) t95 (3)</th><th>(c) s95 (3)</th><th>num↔ana t95 (2)</th><th>num↔ana s95 (2)</th><th>max_v_dev (2)</th><th>Plots (2)</th><th>TOTAL (20)</th></tr><tr><td>6</td><td>3</td><td>3</td><td>2</td><td>2</td><td>2</td><td>2</td><td>20</td></tr></table></div>
+<p class="meta">⏱ 89.5s · 🪙 57,753 total (in 49,890 / out 4,499 / reason 3,364 / cache 61,376+0) · 💰 $0.0000 ·
 Exit 0 · Log: <code>runs/openrouter-nvidia-nemotron-3-ultra-550b-a55b-free/opencode_output.jsonl</code> · Plots: position.jpg, velocity.jpg</p>
 <div class="plots"><div class="plot"><h4>velocity.jpg</h4><img src="assets/openrouter-nvidia-nemotron-3-ultra-550b-a55b-free_velocity.jpg"></div><div class="plot"><h4>position.jpg</h4><img src="assets/openrouter-nvidia-nemotron-3-ultra-550b-a55b-free_position.jpg"></div></div>
 <details><summary>results.json</summary><pre>{
@@ -28,7 +185,7 @@ Exit 0 · Log: <code>runs/openrouter-nvidia-nemotron-3-ultra-550b-a55b-free/open
   &quot;s95_analytic_m&quot;: 345.9818990444864,
   &quot;s95_numeric_m&quot;: 345.9818990444878,
   &quot;max_v_deviation_ms&quot;: 4.263256414560601e-14
-}</pre></details><details><summary>solution.md (openrouter-nvidia-nemotron-3-ultra-550b-a55b-free)</summary><pre># Analytical Solution: Skydiver Problem
+}</pre></details><p style="margin:.8rem 0"><button type="button" class="btn md-open" data-src="mdsrc-openrouter-nvidia-nemotron-3-ultra-550b-a55b-free" data-title="solution.md — openrouter-nvidia-nemotron-3-ultra-550b-a55b-free">📄 View solution.md (rendered)</button></p><div id="mdsrc-openrouter-nvidia-nemotron-3-ultra-550b-a55b-free" hidden># Analytical Solution: Skydiver Problem
 
 ## Given
 - Equation of motion: $m \frac{dv}{dt} = -mg + \alpha v^2$
@@ -150,110 +307,81 @@ $$
 | Velocity | $v(t)$ | $-|v_\infty|\tanh(gt/|v_\infty|)$ | — |
 | 95% time | $t_{95}$ | $\frac{|v_\infty|}{g}\operatorname{artanh}(0.95)$ | $10.0833\,\mathrm{s}$ |
 | Distance fallen | $s(t)$ | $\frac{|v_\infty|^2}{g}\ln\cosh(gt/|v_\infty|)$ | — |
-| 95% distance | $s_{95}$ | $\frac{|v_\infty|^2}{g}\ln\cosh(\operatorname{artanh}(0.95))$ | $345.96\,\mathrm{m}$ |</pre></details></div><div class="card"><h2>openrouter/cohere/north-mini-code:free</h2>
-<div class="bar"><div class="fill" style="width:100.0%"></div><span class="barlabel">20 / 20 points</span></div>
-<table class="metrics"><tr><th>Metric</th><th>Value</th><th>Reference</th><th>Deviation</th></tr><tr><td>t95 analytic [s]</td><td>10.083197</td><td>10.083</td><td>1.97e-04</td></tr><tr><td>t95 numeric [s]</td><td>10.083197</td><td>—</td><td>num↔ana: 0.000000</td></tr><tr><td>s95 analytic [m]</td><td>345.9819</td><td>345.982</td><td>1.01e-04</td></tr><tr><td>s95 numeric [m]</td><td>345.9819</td><td>—</td><td>num↔ana: 0.000000</td></tr><tr><td>max_v_deviation [m/s]</td><td>0.0000000000</td><td>&lt;0.05</td><td>OK</td></tr></table>
-<table class="points"><tr><th>(a) Derivation (6)</th><th>(b) t95 (3)</th><th>(c) s95 (3)</th><th>num↔ana t95 (2)</th><th>num↔ana s95 (2)</th><th>max_v_dev (2)</th><th>Plots (2)</th><th>TOTAL (20)</th></tr><tr><td>6</td><td>3</td><td>3</td><td>2</td><td>2</td><td>2</td><td>2</td><td>20</td></tr></table>
-<p class="meta">⏱ 124.6s · 🪙 162,483 total (in 141,603 / out 7,690 / reason 13,190 / cache 0+0) · 💰 $0.0000 ·
-Exit 0 · Log: <code>runs/openrouter-cohere-north-mini-code-free/opencode_output.jsonl</code> · Plots: position.jpg, velocity.jpg</p>
-<div class="plots"><div class="plot"><h4>velocity.jpg</h4><img src="assets/openrouter-cohere-north-mini-code-free_velocity.jpg"></div><div class="plot"><h4>position.jpg</h4><img src="assets/openrouter-cohere-north-mini-code-free_position.jpg"></div></div>
-<details><summary>results.json</summary><pre>{
-  &quot;v_infty_ms&quot;: 54.0,
-  &quot;t95_analytic_s&quot;: 10.083197,
-  &quot;t95_numeric_s&quot;: 10.083197,
-  &quot;s95_analytic_m&quot;: 345.981899,
-  &quot;s95_numeric_m&quot;: 345.981899,
-  &quot;max_v_deviation_ms&quot;: 0.0
-}</pre></details><details><summary>solution.md (openrouter-cohere-north-mini-code-free)</summary><pre># Analytical solution for the skydiver problem
-
-## (a) Determination of $v(t)$ and terminal velocity
-
-The motion in the $z$-direction (upward positive) is governed by the force balance:
-
-$$F_z = m\,a_z = m\frac{dv}{dt} = -mg + \alpha v^2.$$
-
-Dividing by $m$ and introducing the constant $C\equiv \alpha/m$ we have the ordinary differential equation
-
-$$\frac{dv}{dt} = -g + C v^2 \qquad (v&lt;0 \text{ while falling}).$$
-
-A terminal velocity $v_\infty$ is reached when the acceleration vanishes, i.e. $dv/dt\to0$. Setting the right‑hand side to zero gives
-
-$$-g + C v_\infty^2 = 0 \;\Longrightarrow\; v_\infty = -\sqrt{\frac{g}{C}} = -\sqrt{\frac{gm}{\alpha}}.$$
-
-(The negative sign follows from the definition that the skydiver falls, $v&lt;0$.)
-
-Thus the magnitude of the terminal speed is $|v_\infty|=\sqrt{gm/\alpha}$.
-
-### Solving the ODE
-
-The equation can be separated:
-
-$$\frac{dv}{v^2 - v_\infty^2}= C\,dt.$$
-
-Integrating from $v(0)=0$ to an arbitrary $v(t)$ gives
-
-$$\frac{1}{2v_\infty}\ln\!\Bigl|\frac{v-v_\infty}{v+v_\infty}\Bigr| = C t.$$
-
-Solving for $v$ yields
-
-$$\frac{v-v_\infty}{v+v_\infty}=e^{2C v_\infty t}.$$
-
-With $v_\infty&lt;0$ and $C&gt;0$ the right‑hand side decays from $1$ to $0$ as $t$ grows. Solving for $v$ gives the closed‑form solution
-
-$$\boxed{v(t)=v_\infty\frac{1-e^{2C v_\infty t}}{1+e^{2C v_\infty t}} = -|v_\infty|\tanh\!\Bigl(\frac{g}{|v_\infty|}t\Bigr)}.$$
-
-Here we used the identities $C v_\infty = -g/|v_\infty|$ and $\tanh x = (1-e^{-2x})/(1+e^{-2x})$.
-
-The expression shows that as $t\to\infty$, $\tanh(\cdot)\to1$ and $v(t)\to -|v_\infty| = v_\infty$. Hence the skydiver approaches a constant speed $v_\infty$ – the terminal velocity.
-
-## (b) Time to reach $95\%$ of the terminal speed
-
-We are told $|v_\infty|=54\,\mathrm{m/s}$. The $95\%$ level is $|v|=0.95\,|v_\infty|=51.3\,\mathrm{m/s}$.
-
-From the analytical solution,
-
-$$\tanh\!\Bigl(\frac{g}{|v_\infty|}t_{95}\Bigr)=0.95.$$
-
-Thus
-
-$$\frac{g}{|v_\infty|}t_{95}=\operatorname{arctanh}(0.95)=\frac12\ln\!\frac{1+0.95}{1-0.95}\approx1.831781.$$
-
-Hence
-
-$$\boxed{t_{95}= \frac{|v_\infty|}{g}\,\operatorname{arctanh}(0.95)\approx\frac{54}{9.81}\times1.831781\approx10.08\ \mathrm{s}}.$$
-
-## (c) Distance fallen $s_{95}$ in that time
-
-The distance fallen is $s(t)=z_0-z(t)=\displaystyle\int_0^{t}|v(t&#x27;)|\,dt&#x27;$.
-
-Using $v(t)=-|v_\infty|\tanh(\kappa t)$ with $\kappa=g/|v_\infty|$, we obtain
-
-$$s(t)=|v_\infty|\int_0^{t}\tanh(\kappa t&#x27;)dt&#x27;
-      =\frac{|v_\infty|}{\kappa}\ln\!\bigl(\cosh(\kappa t)\bigr)
-      =\frac{|v_\infty|^2}{g}\,\ln\!\bigl(\cosh(\kappa t)\bigr).$$
-
-Therefore
-
-$$\boxed{s(t)=\frac{54^2}{9.81}\,\ln\!\bigl(\cosh(0.18166667\,t)\bigr)\approx 297.247\ln\!\bigl(\cosh(0.18166667\,t)\bigr)\ \text{m}}.$$
-
-Evaluating at $t_{95}$:
-
-$$\kappa t_{95}=\operatorname{arctanh}(0.95)\approx1.831781,$$
-
-so $\cosh(\kappa t_{95})=1/\sqrt{1-0.95^2}=1/\sqrt{0.0975}\approx3.2026$ and $\ln\cosh(\kappa t_{95})\approx1.166$. Hence
-
-$$\boxed{s_{95}=s(t_{95})\approx\frac{2916}{9.81}\times1.166\approx346.6\ \mathrm{m}}.$$
-
-## Summary of analytical results
-
-| Quantity | Symbol | Value |
-|----------|--------|-------|
-| Terminal speed magnitude | $|v_\infty|$ | $54\,\mathrm{m/s}$ |
-| Time to $95\%$ of terminal speed | $t_{95}$ | $10.08\,\mathrm{s}$ |
-| Distance fallen up to $t_{95}$ | $s_{95}$ | $346.6\,\mathrm{m}$ |
-
-The analytical solution also provides the general expressions for $v(t)$ and $s(t)$ given above.
-
----
-
-*Note: All derivations respect the initial condition $v(0)=0$ and the sign conventions described in the problem.*</pre></details></div></body></html>
+| 95% distance | $s_{95}$ | $\frac{|v_\infty|^2}{g}\ln\cosh(\operatorname{artanh}(0.95))$ | $345.96\,\mathrm{m}$ |</div></div>
+</main>
+<div class="modal" id="md-modal" hidden>
+<div class="modal-backdrop" data-close></div>
+<div class="modal-dialog" role="dialog" aria-modal="true" aria-label="solution.md preview">
+<div class="modal-head"><span class="modal-title">solution.md</span>
+<div class="modal-actions">
+<button type="button" class="btn seg active" data-view="rendered">✓ Rendered</button>
+<button type="button" class="btn seg" data-view="raw">Raw</button>
+<button type="button" class="btn modal-close" data-close title="Close (Esc)">✕</button>
+</div></div>
+<div class="modal-body"><div class="md-view"></div><pre class="md-raw" hidden></pre></div>
+</div></div>
+<script>(function(){
+"use strict";
+// Protect $...$, $$...$$, \(...\), \[...\] from the markdown parser (underscores etc. inside
+// math would otherwise be mangled), then restore them and let KaTeX auto-render typeset them.
+var MATH_RE=/(\$\$[\s\S]+?\$\$)|(\\\[[\s\S]+?\\\])|(\\\([\s\S]+?\\\))|(\$[^\n$]+?\$)/g;
+var SLOT_RE=/MATHSLOT(\d+)XEND/g;
+var DELIMS=[{left:"$$",right:"$$",display:true},{left:"\\[",right:"\\]",display:true},
+            {left:"\\(",right:"\\)",display:false},{left:"$",right:"$",display:false}];
+function renderMarkdown(src){
+  if(!window.marked||typeof window.marked.parse!=="function")return null;
+  var store=[];
+  var ph=src.replace(MATH_RE,function(m){store.push(m);return "MATHSLOT"+(store.length-1)+"XEND";});
+  var out;
+  try{out=window.marked.parse(ph,{gfm:true,breaks:false});}catch(e){return null;}
+  return out.replace(SLOT_RE,function(_,i){return store[+i];});
+}
+var modal,mTitle,mView,mRaw,lastFocus=null;
+function setSeg(which){
+  var segs=modal.querySelectorAll(".seg");
+  for(var i=0;i<segs.length;i++)segs[i].classList.toggle("active",segs[i].getAttribute("data-view")===which);
+  mView.hidden=(which!=="rendered");
+  mRaw.hidden=(which!=="raw");
+}
+function openModal(srcEl,title){
+  var raw=srcEl.textContent||"";
+  mTitle.textContent=title;
+  mRaw.textContent=raw;
+  var html=renderMarkdown(raw);
+  mView.innerHTML=html||"";
+  if(html!==null&&window.renderMathInElement){
+    try{window.renderMathInElement(mView,{delimiters:DELIMS,throwOnError:false});}catch(e){}
+  }
+  setSeg(html!==null?"rendered":"raw");
+  lastFocus=document.activeElement;
+  modal.hidden=false;
+  document.body.style.overflow="hidden";
+  var c=modal.querySelector(".modal-close");if(c)c.focus();
+}
+function closeModal(){
+  modal.hidden=true;
+  document.body.style.overflow="";
+  if(lastFocus&&lastFocus.focus)lastFocus.focus();
+}
+function init(){
+  modal=document.getElementById("md-modal");
+  if(!modal)return;
+  mTitle=modal.querySelector(".modal-title");
+  mView=modal.querySelector(".md-view");
+  mRaw=modal.querySelector(".md-raw");
+  var btns=document.querySelectorAll(".md-open");
+  for(var i=0;i<btns.length;i++)(function(btn){
+    btn.addEventListener("click",function(){
+      var src=document.getElementById(btn.getAttribute("data-src"));
+      if(src)openModal(src,btn.getAttribute("data-title")||"solution.md");
+    });
+  })(btns[i]);
+  var closers=modal.querySelectorAll("[data-close]");
+  for(var j=0;j<closers.length;j++)closers[j].addEventListener("click",closeModal);
+  var segs=modal.querySelectorAll(".seg");
+  for(var k=0;k<segs.length;k++)segs[k].addEventListener("click",function(){setSeg(this.getAttribute("data-view"));});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&modal&&!modal.hidden)closeModal();});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();</script>
+</body></html>

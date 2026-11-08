@@ -128,6 +128,25 @@ def parse_usage(wd):
     return usage, cost
 
 
+def parse_log_meta(wd):
+    """Recover elapsed time, exit code and log path from the opencode JSONL log (used in --build-only)."""
+    log = wd / "opencode_output.jsonl"
+    meta = {"exit_code": "?", "elapsed_s": 0, "log": ""}
+    if not log.exists():
+        return meta
+    meta["log"] = str(log.relative_to(ROOT))
+    ts, had_error = [], False
+    for line in log.read_text(errors="replace").splitlines():
+        try: e = json.loads(line)
+        except Exception: continue
+        if e.get("timestamp"): ts.append(e["timestamp"])
+        if e.get("error") or (e.get("part") or {}).get("error"): had_error = True
+    if len(ts) >= 2:
+        meta["elapsed_s"] = round((max(ts) - min(ts)) / 1000, 1)
+    meta["exit_code"] = 1 if had_error else 0
+    return meta
+
+
 def rescue_stray_files(wd):
     """Move ROOT/solution/* into the run dir if the agent wrote to the wrong place."""
     stray = ROOT / "solution"
@@ -225,19 +244,141 @@ def score_run(results, plots, sol_md, ref_t, ref_s):
 
 # ── HTML report ──────────────────────────────────────────────────────────────
 
-CSS = """ body{font-family:system-ui,sans-serif;margin:2rem;background:#0f1420;color:#e8eaf2}
-h1{color:#7cc7ff} table{border-collapse:collapse;margin:1rem 0}
-th,td{border:1px solid #33405c;padding:.35rem .7rem;text-align:left} th{background:#1b2438}
+CSS = """:root{--bg:#0f1420;--panel:#161e30;--panel2:#1b2438;--border:#2a3652;--border2:#33405c;--txt:#e8eaf2;--muted:#9aa7c7;--accent:#7cc7ff;--accent2:#3fa9f5;--codebg:#0c1220}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:radial-gradient(1100px 480px at 50% -180px,#17223c 0,var(--bg) 62%);color:var(--txt);line-height:1.55}
+main{max-width:1080px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+h1{color:var(--accent);margin:.2rem 0 .3rem;font-size:1.9rem}
+.lead{color:var(--muted);margin-top:0}
+h2{color:#cfe3ff;border-bottom:1px solid var(--border);padding-bottom:.3rem;margin:2.4rem 0 1rem}
+a{color:var(--accent)}
+.tblwrap{overflow-x:auto;max-width:100%;border-radius:8px}
+table{border-collapse:collapse;margin:1rem 0;min-width:480px}
+th,td{border:1px solid var(--border);padding:.4rem .7rem;text-align:left}
+th{background:var(--panel2);color:#cfe3ff}
 .cmp td:first-child{font-weight:600}
-.card{background:#161e30;border:1px solid #2a3652;border-radius:10px;padding:1rem 1.5rem;margin:1.5rem 0}
-.bar{position:relative;background:#0c1220;border-radius:6px;height:1.6rem;margin:.5rem 0 1rem}
-.fill{background:linear-gradient(90deg,#3fa9f5,#7cc7ff);height:100%;border-radius:6px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.5rem;margin:1.5rem 0;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.card>h2{margin-top:0;border-bottom:none;padding-bottom:0}
+.bar{position:relative;background:var(--codebg);border-radius:6px;height:1.6rem;margin:.5rem 0 1rem}
+.fill{background:linear-gradient(90deg,var(--accent2),var(--accent));height:100%;border-radius:6px}
 .barlabel{position:absolute;inset:0;text-align:center;line-height:1.6rem;font-weight:700}
-.plots{display:flex;gap:1rem;flex-wrap:wrap}
-.plot img{max-width:480px;border:1px solid #33405c;border-radius:6px;background:#fff}
-.meta{color:#9aa7c7;font-size:.85rem}
-pre{background:#0c1220;padding:.8rem;border-radius:6px;overflow:auto;max-height:300px}
-code{color:#7cc7ff}"""
+.plots{display:flex;gap:1rem;flex-wrap:wrap;margin:.8rem 0}
+.plot img{max-width:480px;width:100%;border:1px solid var(--border2);border-radius:8px;background:#fff;display:block}
+.plot h4{margin:.3rem 0;color:var(--muted);font-weight:600}
+.meta{color:var(--muted);font-size:.85rem}
+details{background:var(--codebg);border:1px solid var(--border);border-radius:8px;margin:.6rem 0;padding:.45rem .8rem}
+summary{cursor:pointer;color:var(--accent);font-weight:600}
+pre{background:var(--codebg);padding:.8rem;border-radius:6px;overflow:auto;max-height:320px}
+code{color:var(--accent);background:rgba(124,199,255,.08);padding:.05rem .3rem;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.btn{background:#1d2a45;border:1px solid var(--border2);color:var(--accent);padding:.45rem .95rem;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600}
+.btn:hover{background:#25365c;border-color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:1.2rem}
+.modal[hidden]{display:none}
+.modal-backdrop{position:absolute;inset:0;background:rgba(4,8,16,.74);backdrop-filter:blur(3px)}
+.modal-dialog{position:relative;width:min(980px,100%);height:min(86vh,920px);background:var(--panel);border:1px solid var(--border2);border-radius:14px;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 1rem;border-bottom:1px solid var(--border)}
+.modal-title{font-weight:700;color:var(--accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.modal-actions{display:flex;gap:.45rem;align-items:center;flex-shrink:0}
+.seg.active{background:linear-gradient(90deg,var(--accent2),var(--accent));color:#06121f;border-color:transparent}
+.modal-body{overflow:auto;padding:1.3rem 1.7rem;flex:1}
+.md-raw{max-height:none;white-space:pre-wrap;word-break:break-word;margin:0}
+.md-view{max-width:840px;margin:0 auto}
+.md-view h1{font-size:1.45rem;border-bottom:1px solid var(--border);padding-bottom:.3rem}
+.md-view h2{font-size:1.22rem;margin:1.7rem 0 .5rem;border-bottom:1px solid var(--border);padding-bottom:.2rem}
+.md-view h3{font-size:1.05rem;margin:1.3rem 0 .4rem;color:#cfe3ff}
+.md-view p{margin:.65rem 0}
+.md-view ul,.md-view ol{padding-left:1.5rem;margin:.6rem 0}
+.md-view li{margin:.25rem 0}
+.md-view table{min-width:0;margin:.8rem 0}
+.md-view th,.md-view td{border:1px solid var(--border2)}
+.md-view blockquote{border-left:3px solid var(--accent2);margin:.9rem 0;padding:.15rem 1rem;color:var(--muted);background:rgba(63,169,245,.05);border-radius:0 6px 6px 0}
+.md-view hr{border:none;border-top:1px solid var(--border);margin:1.3rem 0}
+.md-view img{max-width:100%;border-radius:6px}
+.md-view pre{max-height:440px}
+.md-view .katex{font-size:1.06em}
+.katex-display{overflow-x:auto;overflow-y:hidden;padding:.35rem 0}
+@media (max-width:640px){.modal{padding:.4rem}.modal-body{padding:1rem}}"""
+
+# Modal markup injected once per page; JS renders solution.md with marked + KaTeX (CDN, SRI-pinned).
+# If the CDN is unreachable, the viewer falls back to the raw markdown in <pre>.
+MODAL = """<div class="modal" id="md-modal" hidden>
+<div class="modal-backdrop" data-close></div>
+<div class="modal-dialog" role="dialog" aria-modal="true" aria-label="solution.md preview">
+<div class="modal-head"><span class="modal-title">solution.md</span>
+<div class="modal-actions">
+<button type="button" class="btn seg active" data-view="rendered">✓ Rendered</button>
+<button type="button" class="btn seg" data-view="raw">Raw</button>
+<button type="button" class="btn modal-close" data-close title="Close (Esc)">✕</button>
+</div></div>
+<div class="modal-body"><div class="md-view"></div><pre class="md-raw" hidden></pre></div>
+</div></div>"""
+
+JS = r"""(function(){
+"use strict";
+// Protect $...$, $$...$$, \(...\), \[...\] from the markdown parser (underscores etc. inside
+// math would otherwise be mangled), then restore them and let KaTeX auto-render typeset them.
+var MATH_RE=/(\$\$[\s\S]+?\$\$)|(\\\[[\s\S]+?\\\])|(\\\([\s\S]+?\\\))|(\$[^\n$]+?\$)/g;
+var SLOT_RE=/MATHSLOT(\d+)XEND/g;
+var DELIMS=[{left:"$$",right:"$$",display:true},{left:"\\[",right:"\\]",display:true},
+            {left:"\\(",right:"\\)",display:false},{left:"$",right:"$",display:false}];
+function renderMarkdown(src){
+  if(!window.marked||typeof window.marked.parse!=="function")return null;
+  var store=[];
+  var ph=src.replace(MATH_RE,function(m){store.push(m);return "MATHSLOT"+(store.length-1)+"XEND";});
+  var out;
+  try{out=window.marked.parse(ph,{gfm:true,breaks:false});}catch(e){return null;}
+  return out.replace(SLOT_RE,function(_,i){return store[+i];});
+}
+var modal,mTitle,mView,mRaw,lastFocus=null;
+function setSeg(which){
+  var segs=modal.querySelectorAll(".seg");
+  for(var i=0;i<segs.length;i++)segs[i].classList.toggle("active",segs[i].getAttribute("data-view")===which);
+  mView.hidden=(which!=="rendered");
+  mRaw.hidden=(which!=="raw");
+}
+function openModal(srcEl,title){
+  var raw=srcEl.textContent||"";
+  mTitle.textContent=title;
+  mRaw.textContent=raw;
+  var html=renderMarkdown(raw);
+  mView.innerHTML=html||"";
+  if(html!==null&&window.renderMathInElement){
+    try{window.renderMathInElement(mView,{delimiters:DELIMS,throwOnError:false});}catch(e){}
+  }
+  setSeg(html!==null?"rendered":"raw");
+  lastFocus=document.activeElement;
+  modal.hidden=false;
+  document.body.style.overflow="hidden";
+  var c=modal.querySelector(".modal-close");if(c)c.focus();
+}
+function closeModal(){
+  modal.hidden=true;
+  document.body.style.overflow="";
+  if(lastFocus&&lastFocus.focus)lastFocus.focus();
+}
+function init(){
+  modal=document.getElementById("md-modal");
+  if(!modal)return;
+  mTitle=modal.querySelector(".modal-title");
+  mView=modal.querySelector(".md-view");
+  mRaw=modal.querySelector(".md-raw");
+  var btns=document.querySelectorAll(".md-open");
+  for(var i=0;i<btns.length;i++)(function(btn){
+    btn.addEventListener("click",function(){
+      var src=document.getElementById(btn.getAttribute("data-src"));
+      if(src)openModal(src,btn.getAttribute("data-title")||"solution.md");
+    });
+  })(btns[i]);
+  var closers=modal.querySelectorAll("[data-close]");
+  for(var j=0;j<closers.length;j++)closers[j].addEventListener("click",closeModal);
+  var segs=modal.querySelectorAll(".seg");
+  for(var k=0;k<segs.length;k++)segs[k].addEventListener("click",function(){setSeg(this.getAttribute("data-view"));});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&modal&&!modal.hidden)closeModal();});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();"""
 
 POINT_LABELS = [("a_derivation", "(a) Derivation (6)"), ("b_t95", "(b) t95 (3)"),
                 ("c_s95", "(c) s95 (3)"), ("num_t95", "num↔ana t95 (2)"),
@@ -257,8 +398,11 @@ def _card(run, ref_t, ref_s, assets):
     sol_html = ""
     if run.get("solution_md") and Path(run["solution_md"]).exists():
         shutil.copy(run["solution_md"], assets / f"{s}_solution.md")
-        snip = html.escape(Path(run["solution_md"]).read_text(errors="replace")[:8000])
-        sol_html = f'<details><summary>solution.md ({html.escape(s)})</summary><pre>{snip}</pre></details>'
+        md = Path(run["solution_md"]).read_text(errors="replace")[:200_000]
+        src_id = f"mdsrc-{s}"
+        sol_html = (f'<p style="margin:.8rem 0"><button type="button" class="btn md-open" data-src="{src_id}" '
+                    f'data-title="solution.md — {html.escape(run["model"])}">📄 View solution.md (rendered)</button></p>'
+                    f'<div id="{src_id}" hidden>{html.escape(md)}</div>')
     d95 = abs(m["t95_numeric_s"] - m["t95_analytic_s"]) if m["t95_numeric_s"] is not None and m["t95_analytic_s"] is not None else None
     d95s = abs(m["s95_numeric_m"] - m["s95_analytic_m"]) if m["s95_numeric_m"] is not None and m["s95_analytic_m"] is not None else None
     dev_ok = "OK" if m["max_v_deviation_ms"] is not None and m["max_v_deviation_ms"] < MAXDEV_TOL else "FAIL"
@@ -277,8 +421,8 @@ def _card(run, ref_t, ref_s, assets):
                f"reason {tk.get('reasoning', 0):,} / cache {tk.get('cache_read', 0):,}+{tk.get('cache_write', 0):,})")
     return f"""<div class="card"><h2>{html.escape(run['model'])}</h2>
 <div class="bar"><div class="fill" style="width:{pct:.1f}%"></div><span class="barlabel">{p['total']} / {MAX_PTS} points</span></div>
-<table class="metrics"><tr><th>Metric</th><th>Value</th><th>Reference</th><th>Deviation</th></tr>{mrows}</table>
-<table class="points"><tr>{hdr}</tr><tr>{cells}</tr></table>
+<div class="tblwrap"><table class="metrics"><tr><th>Metric</th><th>Value</th><th>Reference</th><th>Deviation</th></tr>{mrows}</table></div>
+<div class="tblwrap"><table class="points"><tr>{hdr}</tr><tr>{cells}</tr></table></div>
 <p class="meta">⏱ {run['elapsed_s']}s · 🪙 {tok_str} · 💰 ${run.get('cost_usd', 0):.4f} ·
 Exit {run['exit_code']} · Log: <code>{html.escape(run['log'])}</code> · Plots: {html.escape(', '.join(sc['plots_found']) or 'none')}</p>
 <div class="plots">{imgs}</div>
@@ -300,10 +444,22 @@ def build_website(runs, ref_t, ref_s):
     else:
         cmp = "<p>Only one run available — comparison needs two models.</p>"
     page = f"""<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
-<title>Skydiver Benchmark — Model Comparison</title><style>{CSS}</style></head><body>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skydiver Benchmark — Model Comparison</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<style>{CSS}</style>
+<script defer src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js" integrity="sha384-/TQbtLCAerC3jgaim+N78RZSDYV7ryeoBCVqTuzRrFec2akfBkHS7ACQ3PQhvMVi" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+</head><body>
+<main>
 <h1>🪂 Skydiver Benchmark — Model Comparison</h1>
-<p>References: t95,ref = {ref_t} s · s95,ref = {ref_s} m · generated {datetime.now():%Y-%m-%d %H:%M:%S}</p>
-<h2>Comparison</h2>{cmp}<h2>Details per model</h2>{cards}</body></html>"""
+<p class="lead">References: t95,ref = {ref_t} s · s95,ref = {ref_s} m · generated {datetime.now():%Y-%m-%d %H:%M:%S}</p>
+<h2>Comparison</h2><div class="tblwrap">{cmp}</div><h2>Details per model</h2>{cards}
+</main>
+{MODAL}
+<script>{JS}</script>
+</body></html>"""
     (WEB_DIR / "index.html").write_text(page)
     print(f"Website written: {WEB_DIR / 'index.html'}")
 
@@ -321,9 +477,10 @@ def main():
 
     runs = []
     if args.build_only:
-        runs = [{"model": wd.name, "slug": wd.name, "workdir": str(wd),
-                 "exit_code": "?", "elapsed_s": 0, "log": ""}
-                for wd in sorted(RUNS_DIR.glob("*")) if wd.is_dir()]
+        runs = []
+        for wd in sorted(RUNS_DIR.glob("*")):
+            if not wd.is_dir(): continue
+            runs.append({"model": wd.name, "slug": wd.name, "workdir": str(wd), **parse_log_meta(wd)})
     else:
         for model in DEFAULT_MODELS[:2]:
             try:

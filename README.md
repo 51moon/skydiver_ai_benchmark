@@ -33,10 +33,10 @@ automatically against the reference values using the criteria in
 
 ```bash
 # Default: two models (see DEFAULT_MODELS in the script)
-python3 run_benchmark.py
+python run_benchmark.py
 
 # Rebuild only the website from existing runs/ (no new agent runs)
-python3 run_benchmark.py --build-only
+python run_benchmark.py --build-only
 ```
 
 ## Workflow per model
