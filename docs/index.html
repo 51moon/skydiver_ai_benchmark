@@ -1,71 +1,108 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Skydiver Benchmark — AI model comparison via OpenRouter + OpenCode: analytical vs numerical solutions of a physics problem.">
 <title>Skydiver Benchmark — Model Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
-<style>:root{--bg:#0f1420;--panel:#161e30;--panel2:#1b2438;--border:#2a3652;--border2:#33405c;--txt:#e8eaf2;--muted:#9aa7c7;--accent:#7cc7ff;--accent2:#3fa9f5;--codebg:#0c1220}
+<style>:root{--bg:#f5f7fa;--panel:#ffffff;--panel2:#eef2f7;--border:#e4e9f1;--border2:#d3dce8;--txt:#2c3e50;--muted:#64748b;--accent:#1abc9c;--accent-dark:#12876f;--indigo:#6366f1;--purple:#8b5cf6;--grad:linear-gradient(135deg,#1abc9c 0%,#6366f1 60%,#8b5cf6 100%);--codebg:#f1f5f9;--shadow:0 10px 30px rgba(44,62,80,.08)}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:radial-gradient(1100px 480px at 50% -180px,#17223c 0,var(--bg) 62%);color:var(--txt);line-height:1.55}
-main{max-width:1080px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
-h1{color:var(--accent);margin:.2rem 0 .3rem;font-size:1.9rem}
-.lead{color:var(--muted);margin-top:0}
-h2{color:#cfe3ff;border-bottom:1px solid var(--border);padding-bottom:.3rem;margin:2.4rem 0 1rem}
-a{color:var(--accent)}
-.tblwrap{overflow-x:auto;max-width:100%;border-radius:8px}
-table{border-collapse:collapse;margin:1rem 0;min-width:480px}
-th,td{border:1px solid var(--border);padding:.4rem .7rem;text-align:left}
-th{background:var(--panel2);color:#cfe3ff}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:'Inter',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(26,188,156,.28)}
+.topnav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.65rem 1.5rem;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.brand{font-family:'Montserrat',sans-serif;font-weight:800;font-size:1.02rem;color:var(--txt);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .dot{width:.8rem;height:.8rem;border-radius:50%;background:var(--grad);display:inline-block;box-shadow:0 2px 8px rgba(99,102,241,.45)}
+.navlinks{display:flex;gap:1.1rem}
+.navlinks a{color:var(--muted);text-decoration:none;font-weight:600;font-size:.88rem}
+.navlinks a:hover{color:var(--accent-dark)}
+.hero{background:var(--grad);color:#fff;padding:4rem 1.5rem 4.4rem;text-align:center;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(640px 260px at 50% 125%,rgba(255,255,255,.25),transparent 70%);pointer-events:none}
+.hero h1{margin:0;font-family:'Montserrat',sans-serif;font-weight:800;font-size:clamp(1.9rem,4.5vw,2.8rem);letter-spacing:-.01em;color:#fff}
+.divider{display:flex;align-items:center;justify-content:center;gap:.8rem;margin:1.1rem 0 .9rem}
+.divider span{height:2px;width:64px;background:rgba(255,255,255,.65);border-radius:2px}
+.divider i{font-style:normal;font-size:1.05rem;color:#fff}
+.hero .lead{margin:0 auto;max-width:740px;color:rgba(255,255,255,.94);font-size:1.04rem}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:1.5rem;position:relative;z-index:1}
+.chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:999px;padding:.32rem .95rem;font-size:.84rem;font-weight:600;backdrop-filter:blur(4px)}
+main{max-width:1080px;margin:0 auto;padding:2.6rem 1.5rem 3.5rem}
+h2{font-family:'Montserrat',sans-serif;color:var(--txt);text-transform:uppercase;letter-spacing:.08em;font-size:1.02rem;border-bottom:2px solid var(--border);padding-bottom:.55rem;margin:2.6rem 0 1.1rem}
+a{color:var(--indigo)}
+.tblwrap{overflow-x:auto;max-width:100%;border-radius:12px;border:1px solid var(--border);background:var(--panel);box-shadow:var(--shadow)}
+table{border-collapse:collapse;margin:0;width:100%;min-width:480px}
+th,td{padding:.55rem .85rem;text-align:left;border-bottom:1px solid var(--border)}
+th{background:var(--panel2);color:var(--txt);font-weight:700;font-size:.86rem}
+tbody tr:nth-child(even){background:#f8fafc}
+tbody tr:hover{background:#ecf9f5}
+tbody tr:last-child td{border-bottom:none}
 .cmp td:first-child{font-weight:600}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.5rem;margin:1.5rem 0;box-shadow:0 6px 24px rgba(0,0,0,.25)}
-.card>h2{margin-top:0;border-bottom:none;padding-bottom:0}
-.bar{position:relative;background:var(--codebg);border-radius:6px;height:1.6rem;margin:.5rem 0 1rem}
-.fill{background:linear-gradient(90deg,var(--accent2),var(--accent));height:100%;border-radius:6px}
-.barlabel{position:absolute;inset:0;text-align:center;line-height:1.6rem;font-weight:700}
-.plots{display:flex;gap:1rem;flex-wrap:wrap;margin:.8rem 0}
-.plot img{max-width:480px;width:100%;border:1px solid var(--border2);border-radius:8px;background:#fff;display:block}
-.plot h4{margin:.3rem 0;color:var(--muted);font-weight:600}
+.cmp tr.total td{background:linear-gradient(90deg,rgba(26,188,156,.16),rgba(99,102,241,.16));font-weight:800}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:1.3rem 1.6rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.3rem}
+.card-head h2{margin:0;border:none;padding:0;font-size:1.18rem;text-transform:none;letter-spacing:-.01em}
+.pill{background:var(--grad);color:#fff;font-weight:700;font-size:.84rem;border-radius:999px;padding:.32rem .95rem;white-space:nowrap;box-shadow:0 3px 10px rgba(99,102,241,.3)}
+.bar{position:relative;background:var(--codebg);border-radius:999px;height:1.7rem;margin:.6rem 0 1.1rem;overflow:hidden}
+.fill{background:var(--grad);height:100%;border-radius:999px}
+.barlabel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4)}
+.plots{display:flex;gap:1.1rem;flex-wrap:wrap;margin:.9rem 0}
+.plot{flex:1 1 320px;max-width:520px}
+.plot img{width:100%;border:1px solid var(--border2);border-radius:12px;background:#fff;display:block;box-shadow:var(--shadow)}
+.plot h4{margin:.2rem 0 .55rem;color:var(--muted);font-weight:600;font-size:.82rem;text-transform:uppercase;letter-spacing:.06em}
 .meta{color:var(--muted);font-size:.85rem}
-details{background:var(--codebg);border:1px solid var(--border);border-radius:8px;margin:.6rem 0;padding:.45rem .8rem}
-summary{cursor:pointer;color:var(--accent);font-weight:600}
-pre{background:var(--codebg);padding:.8rem;border-radius:6px;overflow:auto;max-height:320px}
-code{color:var(--accent);background:rgba(124,199,255,.08);padding:.05rem .3rem;border-radius:4px;font-size:.92em}
-pre code{background:none;padding:0}
-.btn{background:#1d2a45;border:1px solid var(--border2);color:var(--accent);padding:.45rem .95rem;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600}
-.btn:hover{background:#25365c;border-color:var(--accent)}
-.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+details{background:var(--codebg);border:1px solid var(--border);border-radius:10px;margin:.6rem 0;padding:.45rem .9rem}
+summary{cursor:pointer;color:var(--accent-dark);font-weight:600}
+pre{background:var(--codebg);padding:.9rem;border-radius:10px;overflow:auto;max-height:320px;font-size:.85rem}
+code{color:#0d9488;background:rgba(26,188,156,.1);padding:.05rem .35rem;border-radius:5px;font-size:.9em}
+pre code{background:none;padding:0;color:var(--txt)}
+.btn{background:var(--grad);border:none;color:#fff;padding:.5rem 1.1rem;border-radius:999px;cursor:pointer;font-size:.9rem;font-weight:700;font-family:inherit;box-shadow:0 4px 14px rgba(99,102,241,.35);transition:transform .12s ease,box-shadow .12s ease}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(99,102,241,.42)}
+.btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
 .modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:1.2rem}
 .modal[hidden]{display:none}
-.modal-backdrop{position:absolute;inset:0;background:rgba(4,8,16,.74);backdrop-filter:blur(3px)}
-.modal-dialog{position:relative;width:min(980px,100%);height:min(86vh,920px);background:var(--panel);border:1px solid var(--border2);border-radius:14px;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+.modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px)}
+.modal-dialog{position:relative;width:min(980px,100%);height:min(86vh,920px);background:var(--panel);border:1px solid var(--border2);border-radius:16px;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(15,23,42,.35)}
 .modal-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 1rem;border-bottom:1px solid var(--border)}
-.modal-title{font-weight:700;color:var(--accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.modal-title{font-weight:700;color:var(--txt);font-family:'Montserrat',sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .modal-actions{display:flex;gap:.45rem;align-items:center;flex-shrink:0}
-.seg.active{background:linear-gradient(90deg,var(--accent2),var(--accent));color:#06121f;border-color:transparent}
+.seg{background:var(--panel2);border:1px solid var(--border2);color:var(--txt);padding:.4rem .95rem;border-radius:999px;cursor:pointer;font-size:.85rem;font-weight:600;font-family:inherit}
+.seg.active{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 3px 10px rgba(99,102,241,.3)}
+.modal-close{background:var(--panel2);border:1px solid var(--border2);color:var(--muted);padding:.4rem .75rem;border-radius:999px;cursor:pointer;font-size:.85rem;font-weight:700;font-family:inherit}
+.modal-close:hover{color:var(--txt)}
 .modal-body{overflow:auto;padding:1.3rem 1.7rem;flex:1}
-.md-raw{max-height:none;white-space:pre-wrap;word-break:break-word;margin:0}
-.md-view{max-width:840px;margin:0 auto}
-.md-view h1{font-size:1.45rem;border-bottom:1px solid var(--border);padding-bottom:.3rem}
-.md-view h2{font-size:1.22rem;margin:1.7rem 0 .5rem;border-bottom:1px solid var(--border);padding-bottom:.2rem}
-.md-view h3{font-size:1.05rem;margin:1.3rem 0 .4rem;color:#cfe3ff}
+.md-raw{max-height:none;white-space:pre-wrap;word-break:break-word;margin:0;color:var(--txt)}
+.md-view{max-width:840px;margin:0 auto;color:var(--txt)}
+.md-view h1{font-size:1.45rem;border-bottom:1px solid var(--border);padding-bottom:.3rem;font-family:'Montserrat',sans-serif;color:var(--txt)}
+.md-view h2{font-size:1.22rem;margin:1.7rem 0 .5rem;border-bottom:1px solid var(--border);padding-bottom:.2rem;text-transform:none;letter-spacing:0;color:var(--txt)}
+.md-view h3{font-size:1.05rem;margin:1.3rem 0 .4rem;color:var(--txt)}
 .md-view p{margin:.65rem 0}
 .md-view ul,.md-view ol{padding-left:1.5rem;margin:.6rem 0}
 .md-view li{margin:.25rem 0}
-.md-view table{min-width:0;margin:.8rem 0}
+.md-view table{min-width:0;margin:.8rem 0;width:auto}
 .md-view th,.md-view td{border:1px solid var(--border2)}
-.md-view blockquote{border-left:3px solid var(--accent2);margin:.9rem 0;padding:.15rem 1rem;color:var(--muted);background:rgba(63,169,245,.05);border-radius:0 6px 6px 0}
+.md-view blockquote{border-left:3px solid var(--accent);margin:.9rem 0;padding:.15rem 1rem;color:var(--muted);background:rgba(26,188,156,.06);border-radius:0 6px 6px 0}
 .md-view hr{border:none;border-top:1px solid var(--border);margin:1.3rem 0}
 .md-view img{max-width:100%;border-radius:6px}
 .md-view pre{max-height:440px}
 .md-view .katex{font-size:1.06em}
 .katex-display{overflow-x:auto;overflow-y:hidden;padding:.35rem 0}
-@media (max-width:640px){.modal{padding:.4rem}.modal-body{padding:1rem}}</style>
+footer{border-top:1px solid var(--border);padding:1.6rem 1.5rem 2.4rem;text-align:center;color:var(--muted);font-size:.85rem}
+@media (max-width:640px){.modal{padding:.4rem}.modal-body{padding:1rem}.hero{padding:3rem 1rem 3.4rem}.navlinks{gap:.7rem}}</style>
 <script defer src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js" integrity="sha384-/TQbtLCAerC3jgaim+N78RZSDYV7ryeoBCVqTuzRrFec2akfBkHS7ACQ3PQhvMVi" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 </head><body>
+<nav class="topnav"><a class="brand" href="#"><span class="dot"></span>Skydiver Benchmark</a>
+<div class="navlinks"><a href="#comparison">Comparison</a><a href="#details">Details</a><a href="https://github.com/51moon/skydiver_ai_benchmark">GitHub ↗</a></div></nav>
+<header class="hero">
+<h1>🪂 Skydiver Benchmark</h1>
+<div class="divider"><span></span><i>✦</i><span></span></div>
+<p class="lead">How well do different AI models solve a physics problem end-to-end — analytically and numerically — and cross-check the two against each other?</p>
+<div class="chips"><span class="chip">t95,ref = 10.083 s</span><span class="chip">s95,ref = 345.982 m</span><span class="chip">max score = 20 pts</span><span class="chip">generated 2026-11-08 12:49:34</span></div>
+</header>
 <main>
-<h1>🪂 Skydiver Benchmark — Model Comparison</h1>
-<p class="lead">References: t95,ref = 10.083 s · s95,ref = 345.982 m · generated 2026-11-08 12:43:51</p>
-<h2>Comparison</h2><div class="tblwrap"><table class="cmp"><tr><th>Criterion</th><th>openrouter-cohere-north-mini-code-free</th><th>openrouter-nvidia-nemotron-3-ultra-550b-a55b-free</th></tr><tr><td>(a) Derivation (6)</td><td>6</td><td>6</td></tr><tr><td>(b) t95 (3)</td><td>3</td><td>3</td></tr><tr><td>(c) s95 (3)</td><td>3</td><td>3</td></tr><tr><td>num↔ana t95 (2)</td><td>2</td><td>2</td></tr><tr><td>num↔ana s95 (2)</td><td>2</td><td>2</td></tr><tr><td>max_v_dev (2)</td><td>2</td><td>2</td></tr><tr><td>Plots (2)</td><td>2</td><td>2</td></tr><tr><td>TOTAL (20)</td><td>20</td><td>20</td></tr><tr><td>Tokens (total)</td><td>162,483</td><td>57,753</td></tr><tr><td>Time [s]</td><td>123.3</td><td>89.5</td></tr><tr><td>Cost [USD]</td><td>$0.0000</td><td>$0.0000</td></tr></table></div><h2>Details per model</h2><div class="card"><h2>openrouter-cohere-north-mini-code-free</h2>
+<h2 id="comparison">Comparison</h2><div class="tblwrap"><table class="cmp"><tr><th>Criterion</th><th>openrouter-cohere-north-mini-code-free</th><th>openrouter-nvidia-nemotron-3-ultra-550b-a55b-free</th></tr><tr><td>(a) Derivation (6)</td><td>6</td><td>6</td></tr><tr><td>(b) t95 (3)</td><td>3</td><td>3</td></tr><tr><td>(c) s95 (3)</td><td>3</td><td>3</td></tr><tr><td>num↔ana t95 (2)</td><td>2</td><td>2</td></tr><tr><td>num↔ana s95 (2)</td><td>2</td><td>2</td></tr><tr><td>max_v_dev (2)</td><td>2</td><td>2</td></tr><tr><td>Plots (2)</td><td>2</td><td>2</td></tr><tr class="total"><td>TOTAL (20)</td><td>20</td><td>20</td></tr><tr><td>Tokens (total)</td><td>162,483</td><td>57,753</td></tr><tr><td>Time [s]</td><td>123.3</td><td>89.5</td></tr><tr><td>Cost [USD]</td><td>$0.0000</td><td>$0.0000</td></tr></table></div>
+<h2 id="details">Details per model</h2><div class="card"><div class="card-head"><h2>openrouter-cohere-north-mini-code-free</h2><span class="pill">20 / 20 pts</span></div>
 <div class="bar"><div class="fill" style="width:100.0%"></div><span class="barlabel">20 / 20 points</span></div>
 <div class="tblwrap"><table class="metrics"><tr><th>Metric</th><th>Value</th><th>Reference</th><th>Deviation</th></tr><tr><td>t95 analytic [s]</td><td>10.083197</td><td>10.083</td><td>1.97e-04</td></tr><tr><td>t95 numeric [s]</td><td>10.083197</td><td>—</td><td>num↔ana: 0.000000</td></tr><tr><td>s95 analytic [m]</td><td>345.9819</td><td>345.982</td><td>1.01e-04</td></tr><tr><td>s95 numeric [m]</td><td>345.9819</td><td>—</td><td>num↔ana: 0.000000</td></tr><tr><td>max_v_deviation [m/s]</td><td>0.0000000000</td><td>&lt;0.05</td><td>OK</td></tr></table></div>
 <div class="tblwrap"><table class="points"><tr><th>(a) Derivation (6)</th><th>(b) t95 (3)</th><th>(c) s95 (3)</th><th>num↔ana t95 (2)</th><th>num↔ana s95 (2)</th><th>max_v_dev (2)</th><th>Plots (2)</th><th>TOTAL (20)</th></tr><tr><td>6</td><td>3</td><td>3</td><td>2</td><td>2</td><td>2</td><td>2</td><td>20</td></tr></table></div>
@@ -171,7 +208,7 @@ The analytical solution also provides the general expressions for $v(t)$ and $s(
 
 ---
 
-*Note: All derivations respect the initial condition $v(0)=0$ and the sign conventions described in the problem.*</div></div><div class="card"><h2>openrouter-nvidia-nemotron-3-ultra-550b-a55b-free</h2>
+*Note: All derivations respect the initial condition $v(0)=0$ and the sign conventions described in the problem.*</div></div><div class="card"><div class="card-head"><h2>openrouter-nvidia-nemotron-3-ultra-550b-a55b-free</h2><span class="pill">20 / 20 pts</span></div>
 <div class="bar"><div class="fill" style="width:100.0%"></div><span class="barlabel">20 / 20 points</span></div>
 <div class="tblwrap"><table class="metrics"><tr><th>Metric</th><th>Value</th><th>Reference</th><th>Deviation</th></tr><tr><td>t95 analytic [s]</td><td>10.083197</td><td>10.083</td><td>1.97e-04</td></tr><tr><td>t95 numeric [s]</td><td>10.083197</td><td>—</td><td>num↔ana: 3.02e-14</td></tr><tr><td>s95 analytic [m]</td><td>345.9819</td><td>345.982</td><td>1.01e-04</td></tr><tr><td>s95 numeric [m]</td><td>345.9819</td><td>—</td><td>num↔ana: 1.42e-12</td></tr><tr><td>max_v_deviation [m/s]</td><td>4.26e-14</td><td>&lt;0.05</td><td>OK</td></tr></table></div>
 <div class="tblwrap"><table class="points"><tr><th>(a) Derivation (6)</th><th>(b) t95 (3)</th><th>(c) s95 (3)</th><th>num↔ana t95 (2)</th><th>num↔ana s95 (2)</th><th>max_v_dev (2)</th><th>Plots (2)</th><th>TOTAL (20)</th></tr><tr><td>6</td><td>3</td><td>3</td><td>2</td><td>2</td><td>2</td><td>2</td><td>20</td></tr></table></div>
@@ -309,6 +346,7 @@ $$
 | Distance fallen | $s(t)$ | $\frac{|v_\infty|^2}{g}\ln\cosh(gt/|v_\infty|)$ | — |
 | 95% distance | $s_{95}$ | $\frac{|v_\infty|^2}{g}\ln\cosh(\operatorname{artanh}(0.95))$ | $345.96\,\mathrm{m}$ |</div></div>
 </main>
+<footer>Generated by <code>run_benchmark.py</code> · Skydiver AI Benchmark · <a href="https://github.com/51moon/skydiver_ai_benchmark">source on GitHub</a></footer>
 <div class="modal" id="md-modal" hidden>
 <div class="modal-backdrop" data-close></div>
 <div class="modal-dialog" role="dialog" aria-modal="true" aria-label="solution.md preview">
